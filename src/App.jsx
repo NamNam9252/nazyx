@@ -11,7 +11,7 @@ import FairCampus from './pages/FairCampus'
 
 const App = () => {
   return (
-    <BrowserRouter basename="/nazyx">
+    <BrowserRouter>
         <div className='fixed z-[999]'>
           <Header/>
         </div>
