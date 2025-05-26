@@ -1,0 +1,168 @@
+// import React, { useRef, useMemo } from 'react';
+// import { Canvas, useFrame, useThree } from '@react-three/fiber';
+// import * as THREE from 'three';
+
+// // A single responsive line
+// function CurvedLine({ y, mouse, width, height }) {
+//   const ref = useRef();
+
+//   const POINTS     = 60;
+//   const MAX_BEND   = 4.0;
+//   const SPREAD_X   = 1.0;
+//   const SPREAD_Y   = 1.0;
+//   const SPRING_K   = 40.0;
+//   const DAMPING    = 8.0;
+
+//   const geometry = useMemo(() => {
+//     const geo = new THREE.BufferGeometry();
+//     const pos = new Float32Array(POINTS * 3);
+//     geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+//     geo.setDrawRange(0, POINTS);
+//     return geo;
+//   }, []);
+
+//   // Spring system per point
+//   const displacements = useRef(new Float32Array(POINTS));
+//   const velocities    = useRef(new Float32Array(POINTS));
+
+//   useFrame((_, delta) => {
+//     const positions = geometry.attributes.position.array;
+//     const disp      = displacements.current;
+//     const vel       = velocities.current;
+
+//     const startX = -width / 2;
+//     const endX   = width / 2;
+
+//     const mx = mouse.current.x;
+//     const my = mouse.current.y;
+
+//     for (let i = 0; i < POINTS; i++) {
+//       const t = i / (POINTS - 1);
+//       const x = THREE.MathUtils.lerp(startX, endX, t);
+//       const dx = (x - mx) / SPREAD_X;
+//       const dy = (y - my) / SPREAD_Y;
+
+//       const distSq = dx * dx + dy * dy;
+//       const influence = Math.exp(-distSq);
+
+//       const force = influence * MAX_BEND;
+
+//       // Spring physics
+//       const a = -SPRING_K * (disp[i] - force) - DAMPING * vel[i];
+//       vel[i] += a * delta;
+//       disp[i] += vel[i] * delta;
+
+//       positions[3 * i + 0] = x;
+//       positions[3 * i + 1] = y + disp[i];
+//       positions[3 * i + 2] = 0;
+//     }
+
+//     geometry.attributes.position.needsUpdate = true;
+//   });
+
+//   return (
+//     <line ref={ref} geometry={geometry}>
+//       <lineBasicMaterial color="white" />
+//     </line>
+//   );
+// }
+
+// // Stack of lines
+// function LinesGroup() {
+//   const { viewport } = useThree();
+//   const mouse = useRef(new THREE.Vector3(0, 9999, 0)); // off-screen initially
+//   const LINE_COUNT = 40;
+
+//   const yPositions = useMemo(() => {
+//     const spacing = viewport.height / LINE_COUNT;
+//     return Array.from({ length: LINE_COUNT }, (_, i) =>
+//       -viewport.height / 2 + i * spacing
+//     );
+//   }, [viewport.height]);
+
+//   return (
+//     <>
+//       {/* Capture pointer movement */}
+//       <mesh
+//         onPointerMove={(e) => mouse.current.copy(e.point)}
+//         onPointerOut={() => mouse.current.set(0, 9999, 0)}
+//       >
+//         <planeGeometry args={[viewport.width, viewport.height]} />
+//         <meshBasicMaterial transparent opacity={0} />
+//       </mesh>
+
+//       {yPositions.map((y, i) => (
+//         <CurvedLine
+//           key={i}
+//           y={y}
+//           mouse={mouse}
+//           width={viewport.width}
+//           height={viewport.height}
+//         />
+//       ))}
+//     </>
+//   );
+// }
+
+// export default function Temp() {
+//   return (
+//     <Canvas
+//       camera={{ position: [0, 0, 10], fov: 50 }}
+//       style={{ width: '100vw', height: '50vh',  }}
+//       className='bg-zinc-900'
+//     >
+//       <LinesGroup />
+//     </Canvas>
+//   );
+// }
+
+
+// import React, { useRef } from "react";
+// import { Canvas, useFrame } from "@react-three/fiber";
+// import { OrbitControls, useGLTF } from "@react-three/drei";
+// import * as THREE from "three";
+
+// const WireframeFace = () => {
+//   const group = useRef();
+//   const { scene } = useGLTF("/human.glb");
+
+//   useFrame(() => {
+//     if (group.current) {
+//       group.current.rotation.y += 0.003;
+//     }
+//   });
+
+//   return (
+//     <group ref={group} scale={3} position={[1, 0, 0]}>
+//       {scene.children.map((child, i) => (
+//         <primitive
+//           key={i}
+//           object={child.clone()}
+//           material={new THREE.MeshBasicMaterial({ color: 0x00ffff, wireframe: true })}
+//         />
+//       ))}
+//     </group>
+//   );
+// };
+
+// const Temp = () => {
+//   return (
+//     <div style={{ width: "100vw", height: "100vh" }}>
+//       <Canvas camera={{ position: [-2, 5, -5], fov: 40 }}>
+//         <ambientLight intensity={0.5} />
+//         <directionalLight position={[5, 5, 5]} intensity={0.7} />
+//         <WireframeFace />
+//         <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={1} />
+//       </Canvas>
+//     </div>
+//   );
+// };
+
+// export default Temp;
+
+// Note:
+// 1. You need a GLB model of a human face (e.g., from Sketchfab or Blender export).
+// 2. Place it inside `public/models/face.glb`.
+// 3. Install drei + fiber + three if not already:
+//    npm install three @react-three/fiber @react-three/drei
+// 4. Use <WireframeFaceCanvas /> anywhere in your JSX.
